@@ -17,12 +17,11 @@ class _KiccAppState extends State<KiccApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'KICC Community App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: const Color(0xFF3C6E71),
-        visualDensity: VisualDensity.standard,
       ),
       builder: (context, child) {
         final media = MediaQuery.of(context);
@@ -33,7 +32,11 @@ class _KiccAppState extends State<KiccApp> {
       },
       home: MainShell(
         textScale: textScale,
-        onTextScaleChanged: (value) => setState(() => textScale = value),
+        onTextScaleChanged: (value) {
+          setState(() {
+            textScale = value;
+          });
+        },
       ),
     );
   }
@@ -56,10 +59,16 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int index = 0;
 
+  void goToPage(int value) {
+    setState(() {
+      index = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = [
-      HomePage(onNavigate: _goTo),
+      HomePage(onNavigate: goToPage),
       const EventsPage(),
       const CoursesPage(),
       const MembershipPage(),
@@ -73,27 +82,44 @@ class _MainShellState extends State<MainShell> {
       body: SafeArea(child: pages[index]),
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
-        onDestinationSelected: (value) => setState(() => index = value),
+        onDestinationSelected: goToPage,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.event_outlined), selectedIcon: Icon(Icons.event), label: 'Events'),
-          NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: Icon(Icons.menu_book), label: 'Courses'),
-          NavigationDestination(icon: Icon(Icons.badge_outlined), selectedIcon: Icon(Icons.badge), label: 'Membership'),
-          NavigationDestination(icon: Icon(Icons.text_fields_outlined), selectedIcon: Icon(Icons.text_fields), label: 'Text'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.event_outlined),
+            selectedIcon: Icon(Icons.event),
+            label: 'Events',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.menu_book_outlined),
+            selectedIcon: Icon(Icons.menu_book),
+            label: 'Courses',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.badge_outlined),
+            selectedIcon: Icon(Icons.badge),
+            label: 'Membership',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.text_fields_outlined),
+            selectedIcon: Icon(Icons.text_fields),
+            label: 'Text',
+          ),
         ],
       ),
-      floatingActionButton: index == 0
-          ? FloatingActionButton.extended(
-              onPressed: () => _goTo(1),
-              icon: const Icon(Icons.event_available),
-              label: const Text('Upcoming Events'),
-            )
-          : null,
+      // floatingActionButton: index == 0
+      //     ? FloatingActionButton.extended(
+      //         onPressed: () => goToPage(1),
+      //         icon: const Icon(Icons.event_available),
+      //         label: const Text('Upcoming Events'),
+      //       )
+      //     : null,
+      floatingActionButton: null,
     );
-  }
-
-  void _goTo(int newIndex) {
-    setState(() => index = newIndex);
   }
 }
 
@@ -105,66 +131,93 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Text('Welcome, Giovanna', style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+        Text(
+          'Welcome, Giovanna',
+          style: textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 8),
         Text(
           'Your next club activities and membership actions are below.',
           style: textTheme.bodyLarge,
         ),
         const SizedBox(height: 24),
-        _SectionHeader(
+
+        SectionHeader(
           title: 'Upcoming events',
           actionLabel: 'See all',
           onPressed: () => onNavigate(1),
         ),
         const SizedBox(height: 12),
-        _UpcomingEventHighlight(onPressed: () => onNavigate(1)),
+        UpcomingEventHighlight(onPressed: () => onNavigate(1)),
+
         const SizedBox(height: 24),
-        _SectionHeader(
+
+        SectionHeader(
           title: 'Continue learning',
           actionLabel: 'Courses',
           onPressed: () => onNavigate(2),
         ),
         const SizedBox(height: 12),
-        const _SimpleListRow(
+        const SimpleListRow(
           icon: Icons.play_circle_outline,
           title: 'Beginner Bocce Skills',
           subtitle: 'Lesson 2 of 4 · 6 min remaining',
           primaryLabel: 'Resume',
         ),
         const Divider(height: 28),
-        const _SimpleListRow(
+        const SimpleListRow(
           icon: Icons.school_outlined,
           title: 'Volunteering Basics',
           subtitle: 'Starts Friday · 3 short lessons',
           primaryLabel: 'View course',
         ),
+
         const SizedBox(height: 24),
-        _SectionHeader(
+
+        SectionHeader(
           title: 'Quick actions',
           actionLabel: '',
           onPressed: null,
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
+
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             FilledButton.icon(
               onPressed: () => onNavigate(3),
               icon: const Icon(Icons.badge),
               label: const Text('Renew membership'),
             ),
+            const SizedBox(height: 12),
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PrayerRequestScreen(),
+                  ),
+                );
+              },
               icon: const Icon(Icons.favorite_border),
               label: const Text('Prayer request'),
             ),
+            const SizedBox(height: 12),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DonationScreen(),
+                  ),
+                );
+              },
               icon: const Icon(Icons.volunteer_activism_outlined),
               label: const Text('Donate'),
             ),
@@ -182,43 +235,85 @@ class EventsPage extends StatefulWidget {
   State<EventsPage> createState() => _EventsPageState();
 }
 
-class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
-  late final TabController _tabController = TabController(length: 3, vsync: this);
-  int? selectedEventId;
+class _EventsPageState extends State<EventsPage>
+    with SingleTickerProviderStateMixin {
+  late final TabController tabController = TabController(length: 3, vsync: this);
+  int selectedEventId = 1;
 
-  final List<EventItem> allEvents = const [
-    EventItem(1, 'Seniors Lunch', 'Today · 12:30 PM', 'Main Hall', 'Community', false),
-    EventItem(2, 'Bingo Afternoon', 'Thursday · 2:00 PM', 'Games Room', 'Community', false),
-    EventItem(3, 'Bocce Practice', 'Saturday · 10:00 AM', 'Outdoor Court', 'Sport', true),
-    EventItem(4, 'Cultural Dance Night', 'Saturday · 7:00 PM', 'Ballroom', 'Culture', true),
+  final List<EventItem> events = const [
+    EventItem(
+      id: 1,
+      title: 'Seniors Lunch',
+      time: 'Today · 12:30 PM',
+      location: 'Main Hall',
+      category: 'Community',
+      paid: false,
+    ),
+    EventItem(
+      id: 2,
+      title: 'Bingo Afternoon',
+      time: 'Thursday · 2:00 PM',
+      location: 'Games Room',
+      category: 'Community',
+      paid: false,
+    ),
+    EventItem(
+      id: 3,
+      title: 'Bocce Practice',
+      time: 'Saturday · 10:00 AM',
+      location: 'Outdoor Court',
+      category: 'Sport',
+      paid: true,
+    ),
+    EventItem(
+      id: 4,
+      title: 'Cultural Dance Night',
+      time: 'Saturday · 7:00 PM',
+      location: 'Ballroom',
+      category: 'Culture',
+      paid: true,
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     final categories = ['Community', 'Sport', 'Culture'];
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 700;
-        final currentCategory = categories[_tabController.index.clamp(0, categories.length - 1)];
-        final items = allEvents.where((e) => e.category == currentCategory).toList();
-        final selected = selectedEventId == null
-            ? (items.isNotEmpty ? items.first : null)
-            : items.firstWhere(
-                (e) => e.id == selectedEventId,
-                orElse: () => items.first,
-              );
+        final isWide = constraints.maxWidth >= 700;
+        final selectedCategory = categories[tabController.index];
 
-        Widget listPane = Column(
+        final filteredEvents = events
+            .where((event) => event.category == selectedCategory)
+            .toList();
+
+        final selectedEvent = filteredEvents.firstWhere(
+          (event) => event.id == selectedEventId,
+          orElse: () => filteredEvents.first,
+        );
+
+        final listPane = Column(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
               child: Row(
                 children: [
                   Expanded(
-                    child: Text('Events', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Events',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   FilledButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Event reminders turned on'),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.notifications_active_outlined),
                     label: const Text('Remind me'),
                   ),
@@ -226,8 +321,12 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
               ),
             ),
             TabBar(
-              controller: _tabController,
-              onTap: (_) => setState(() => selectedEventId = null),
+              controller: tabController,
+              onTap: (_) {
+                setState(() {
+                  selectedEventId = filteredEvents.first.id;
+                });
+              },
               tabs: const [
                 Tab(text: 'Community'),
                 Tab(text: 'Sport'),
@@ -237,22 +336,35 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: items.length,
+                itemCount: filteredEvents.length,
                 separatorBuilder: (_, __) => const Divider(),
                 itemBuilder: (context, index) {
-                  final event = items[index];
+                  final event = filteredEvents[index];
+
                   return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    leading: CircleAvatar(
+                      child: Icon(
+                        event.paid
+                            ? Icons.confirmation_num_outlined
+                            : Icons.groups_2_outlined,
+                      ),
+                    ),
                     title: Text(event.title),
                     subtitle: Text('${event.time}\n${event.location}'),
                     isThreeLine: true,
-                    leading: CircleAvatar(child: Icon(event.paid ? Icons.confirmation_num_outlined : Icons.groups_2_outlined)),
-                    trailing: wide ? null : const Icon(Icons.chevron_right),
+                    trailing: isWide ? null : const Icon(Icons.chevron_right),
                     onTap: () {
-                      if (wide) {
-                        setState(() => selectedEventId = event.id);
+                      if (isWide) {
+                        setState(() {
+                          selectedEventId = event.id;
+                        });
                       } else {
-                        Navigator.of(context).push(
+                        Navigator.push(
+                          context,
                           MaterialPageRoute(
                             builder: (_) => EventDetailsPage(event: event),
                           ),
@@ -266,19 +378,17 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
           ],
         );
 
-        if (!wide) return listPane;
+        if (isWide) {
+          return Row(
+            children: [
+              SizedBox(width: 360, child: listPane),
+              const VerticalDivider(width: 1),
+              Expanded(child: EventDetailsContent(event: selectedEvent)),
+            ],
+          );
+        }
 
-        return Row(
-          children: [
-            SizedBox(width: 360, child: listPane),
-            const VerticalDivider(width: 1),
-            Expanded(
-              child: selected == null
-                  ? const Center(child: Text('Select an event'))
-                  : EventDetailsPanel(event: selected),
-            ),
-          ],
-        );
+        return listPane;
       },
     );
   }
@@ -293,13 +403,13 @@ class EventDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Event details')),
-      body: EventDetailsPanel(event: event),
+      body: EventDetailsContent(event: event),
     );
   }
 }
 
-class EventDetailsPanel extends StatelessWidget {
-  const EventDetailsPanel({super.key, required this.event});
+class EventDetailsContent extends StatelessWidget {
+  const EventDetailsContent({super.key, required this.event});
 
   final EventItem event;
 
@@ -308,42 +418,49 @@ class EventDetailsPanel extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        Text(event.title, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Text(event.time, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 4),
-        Text(event.location, style: Theme.of(context).textTheme.bodyLarge),
-        const SizedBox(height: 20),
+        Icon(
+          Icons.event_available,
+          size: 56,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        const SizedBox(height: 16),
         Text(
-          'Join friends at this KICC event. Booking confirms your place and sends a reminder before it starts.',
-          style: Theme.of(context).textTheme.bodyLarge,
+          event.title,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 12),
+        Text(event.time, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Text(event.location),
+        const SizedBox(height: 24),
+        Text(
+          event.paid
+              ? 'This is a paid event. Payment confirmation will be shown before final booking.'
+              : 'This event is free for members.',
         ),
         const SizedBox(height: 24),
         FilledButton.icon(
           onPressed: () {
             showDialog(
               context: context,
-              builder: (context) => AlertDialog(
+              builder: (_) => AlertDialog(
                 title: const Text('Booking confirmed'),
                 content: Text(
-                  event.paid
-                      ? 'Your event ticket is reserved. You will see the payment confirmation in your email.'
-                      : 'Your place is reserved. A reminder will be sent before the event.',
+                  'You have successfully booked ${event.title}.',
                 ),
                 actions: [
-                  TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Done'),
+                  ),
                 ],
               ),
             );
           },
-          icon: const Icon(Icons.event_available),
-          label: Text(event.paid ? 'Book and pay' : 'Book event'),
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.calendar_month_outlined),
-          label: const Text('Add reminder'),
+          icon: const Icon(Icons.check_circle_outline),
+          label: const Text('Book this event'),
         ),
       ],
     );
@@ -353,41 +470,112 @@ class EventDetailsPanel extends StatelessWidget {
 class CoursesPage extends StatelessWidget {
   const CoursesPage({super.key});
 
+  final List<CourseItem> courses = const [
+    CourseItem(
+      title: 'Beginner Bocce Skills',
+      duration: '4 short lessons',
+      level: 'Beginner',
+      description: 'Learn the basic rules, scoring and safe play techniques.',
+    ),
+    CourseItem(
+      title: 'Volunteering Basics',
+      duration: '3 short lessons',
+      level: 'Beginner',
+      description: 'Understand how to support club events confidently.',
+    ),
+    CourseItem(
+      title: 'Italian Culture Workshop',
+      duration: '5 short lessons',
+      level: 'All levels',
+      description: 'Explore food, music and community traditions.',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final courses = const [
-      ('Beginner Bocce Skills', '4 short lessons · 5–7 min each', true),
-      ('Volunteering Basics', '3 short lessons · New this week', false),
-      ('Italian Culture Workshop', '2 short lessons · In person + app notes', false),
-    ];
-
-    return ListView.separated(
+    return ListView(
       padding: const EdgeInsets.all(20),
-      itemCount: courses.length + 1,
-      separatorBuilder: (_, __) => const Divider(),
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Short courses', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text('Short, simple lessons that are easy to continue later.', style: Theme.of(context).textTheme.bodyLarge),
-              const SizedBox(height: 16),
-            ],
-          );
-        }
-        final course = courses[index - 1];
-        return ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          leading: Icon(course.$3 ? Icons.play_circle_fill : Icons.school_outlined, size: 32),
-          title: Text(course.$1),
-          subtitle: Text(course.$2),
-          trailing: course.$3
-              ? FilledButton(onPressed: () {}, child: const Text('Resume'))
-              : OutlinedButton(onPressed: () {}, child: const Text('View')),
-        );
-      },
+      children: [
+        Text(
+          'Short Courses',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Small, practical lessons for KICC members.',
+        ),
+        const SizedBox(height: 24),
+        for (final course in courses) ...[
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            leading: const CircleAvatar(child: Icon(Icons.menu_book)),
+            title: Text(course.title),
+            subtitle: Text('${course.level} · ${course.duration}'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CourseDetailsPage(course: course),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+        ],
+      ],
+    );
+  }
+}
+
+class CourseDetailsPage extends StatelessWidget {
+  const CourseDetailsPage({super.key, required this.course});
+
+  final CourseItem course;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Course details')),
+      body: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          Text(
+            course.title,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 12),
+          Text('${course.level} · ${course.duration}'),
+          const SizedBox(height: 20),
+          Text(course.description),
+          const SizedBox(height: 28),
+          FilledButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Enrolment confirmed'),
+                  content: Text(
+                    'You are now enrolled in ${course.title}.',
+                  ),
+                  actions: [
+                    FilledButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Done'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: const Icon(Icons.school),
+            label: const Text('Enrol in course'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -402,95 +590,197 @@ class MembershipPage extends StatefulWidget {
 class _MembershipPageState extends State<MembershipPage> {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController(text: 'Giovanna Russo');
-  final phoneController = TextEditingController(text: '0400 000 000');
-  String membership = 'Standard';
+  final emailController = TextEditingController(text: 'giovanna@example.com');
+  String selectedPlan = 'Standard';
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    super.dispose();
+  }
+
+  void confirmRenewal() {
+    if (!formKey.currentState!.validate()) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Confirm membership renewal'),
+        content: Text(
+          'Name: ${nameController.text}\n'
+          'Email: ${emailController.text}\n'
+          'Plan: $selectedPlan\n\n'
+          'Do you want to confirm renewal?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Membership renewed'),
+                  content: const Text(
+                    'Your membership has been renewed successfully.',
+                  ),
+                  actions: [
+                    FilledButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Done'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final plans = const [
+      MembershipPlan(
+        name: 'Standard',
+        price: '\$20',
+        detail: 'Basic access to club events and member updates.',
+      ),
+      MembershipPlan(
+        name: 'Premium',
+        price: '\$40',
+        detail: 'Includes priority booking and selected course discounts.',
+      ),
+      MembershipPlan(
+        name: 'Social',
+        price: '\$15',
+        detail: 'Suitable for casual participation in social activities.',
+      ),
+    ];
+
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Text('Membership', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+        Text(
+          'Membership',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
         const SizedBox(height: 8),
-        Text('Renew your details and choose the membership that suits you.', style: Theme.of(context).textTheme.bodyLarge),
-        const SizedBox(height: 20),
+        const Text('Status: Active · Renewal due soon'),
+        const SizedBox(height: 24),
+
         Form(
           key: formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Full name', border: OutlineInputBorder()),
-                validator: (value) => (value == null || value.trim().isEmpty) ? 'Enter your full name' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Full name',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value == null || value.trim().isEmpty
+                        ? 'Enter your name'
+                        : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: phoneController,
-                decoration: const InputDecoration(labelText: 'Phone number', border: OutlineInputBorder()),
-                validator: (value) => (value == null || value.trim().isEmpty) ? 'Enter your phone number' : null,
-              ),
-              const SizedBox(height: 20),
-              Text('Choose a membership', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 12),
-              _MembershipOption(
-                title: 'Standard',
-                subtitle: 'Access to club events and weekly social activities',
-                price: '20/year',
-                selected: membership == 'Standard',
-                onTap: () => setState(() => membership = 'Standard'),
-              ),
-              const SizedBox(height: 12),
-              _MembershipOption(
-                title: 'Premium',
-                subtitle: 'Standard benefits plus priority booking and discounted paid events',
-                price: '40/year',
-                selected: membership == 'Premium',
-                onTap: () => setState(() => membership = 'Premium'),
-              ),
-              const SizedBox(height: 12),
-              _MembershipOption(
-                title: 'Social',
-                subtitle: 'For casual members who attend selected events only',
-                price: '15/year',
-                selected: membership == 'Social',
-                onTap: () => setState(() => membership = 'Social'),
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: _submit,
-                icon: const Icon(Icons.payment),
-                label: const Text('Pay and renew'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () {},
-                child: const Text('Ask staff for help'),
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email address',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value == null || !value.contains('@')
+                        ? 'Enter a valid email'
+                        : null,
               ),
             ],
           ),
         ),
-      ],
-    );
-  }
 
-  void _submit() {
-    if (!formKey.currentState!.validate()) return;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Payment confirmation'),
-        content: Text('Your $membership membership has been renewed for Giovanna Russo. A receipt has been sent.'),
-        actions: [
-          FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Done')),
-        ],
-      ),
+        const SizedBox(height: 24),
+        Text(
+          'Choose membership type',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 12),
+
+        for (final plan in plans)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  selectedPlan = plan.name;
+                });
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 72),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: selectedPlan == plan.name
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.outlineVariant,
+                    width: selectedPlan == plan.name ? 2 : 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      selectedPlan == plan.name
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${plan.name} (${plan.price})',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(plan.detail),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+        const SizedBox(height: 20),
+        FilledButton.icon(
+          onPressed: confirmRenewal,
+          icon: const Icon(Icons.payment),
+          label: const Text('Continue to payment'),
+        ),
+      ],
     );
   }
 }
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key, required this.textScale, required this.onTextScaleChanged});
+  const SettingsPage({
+    super.key,
+    required this.textScale,
+    required this.onTextScaleChanged,
+  });
 
   final double textScale;
   final ValueChanged<double> onTextScaleChanged;
@@ -500,86 +790,305 @@ class SettingsPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Text('Text size', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Text('Adjust the text size for easier reading.', style: Theme.of(context).textTheme.bodyLarge),
-        const SizedBox(height: 24),
-        SegmentedButton<double>(
-          segments: const [
-            ButtonSegment(value: 1.0, label: Text('Standard')),
-            ButtonSegment(value: 1.15, label: Text('Large')),
-            ButtonSegment(value: 1.3, label: Text('Extra large')),
-          ],
-          selected: {textScale},
-          onSelectionChanged: (selection) => onTextScaleChanged(selection.first),
+        Text(
+          'Text size',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'Adjust text size to make the app easier to read.',
         ),
         const SizedBox(height: 24),
-        const ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(Icons.check_circle_outline),
-          title: Text('Large buttons enabled'),
-          subtitle: Text('Tap targets are kept spacious for easier selection.'),
+        Slider(
+          value: textScale,
+          min: 0.9,
+          max: 1.4,
+          divisions: 5,
+          label: textScale.toStringAsFixed(1),
+          onChanged: onTextScaleChanged,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Sample readable text for Giovanna.',
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       ],
     );
   }
 }
 
-class _MembershipOption extends StatelessWidget {
-  const _MembershipOption({
-    required this.title,
-    required this.subtitle,
-    required this.price,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final String price;
-  final bool selected;
-  final VoidCallback onTap;
+class PrayerRequestScreen extends StatelessWidget {
+  const PrayerRequestScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
-            width: selected ? 2 : 1,
+    final nameController = TextEditingController(text: 'Giovanna Russo');
+    final requestController = TextEditingController();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Prayer Request')),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Text(
+            'Submit your prayer request',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
           ),
-          color: selected ? Theme.of(context).colorScheme.primaryContainer.withOpacity(.4) : null,
-        ),
-        child: Row(
-          children: [
-            Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(subtitle),
-                ],
-              ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              labelText: 'Your name',
+              border: OutlineInputBorder(),
             ),
-            const SizedBox(width: 12),
-            Text(price, style: Theme.of(context).textTheme.titleMedium),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: requestController,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              labelText: 'Prayer request',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Prayer request submitted')),
+              );
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.favorite),
+            label: const Text('Submit request'),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.actionLabel, this.onPressed});
+class DonationScreen extends StatefulWidget {
+  const DonationScreen({super.key});
+
+  @override
+  State<DonationScreen> createState() => _DonationScreenState();
+}
+
+class _DonationScreenState extends State<DonationScreen> {
+  final formKey = GlobalKey<FormState>();
+  final nameController = TextEditingController(text: 'Giovanna Russo');
+  final amountController = TextEditingController();
+  String donationType = 'General support';
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    amountController.dispose();
+    super.dispose();
+  }
+
+  void confirmDonation() {
+    if (!formKey.currentState!.validate()) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Confirm donation'),
+        content: Text(
+          'Donor: ${nameController.text}\n'
+          'Amount: \$${amountController.text}\n'
+          'Purpose: $donationType\n\n'
+          'Do you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              showSuccess();
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showSuccess() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Donation successful'),
+        content: const Text(
+          'Thank you for supporting the KICC community. A receipt has been sent.',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final donationOptions = [
+      'General support',
+      'Seniors activities',
+      'Short courses',
+      'Community events',
+    ];
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Donate')),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Text(
+            'Support KICC',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Choose an amount and purpose for your donation.',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 24),
+          Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Full name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) =>
+                      value == null || value.trim().isEmpty
+                          ? 'Enter your name'
+                          : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: amountController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Donation amount',
+                    prefixText: '\$',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Enter an amount';
+                    }
+
+                    final amount = double.tryParse(value);
+
+                    if (amount == null || amount <= 0) {
+                      return 'Enter a valid amount';
+                    }
+
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Donation purpose',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                for (final option in donationOptions)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          donationType = option;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 56),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: donationType == option
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.outlineVariant,
+                            width: donationType == option ? 2 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              donationType == option
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_off,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                option,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: confirmDonation,
+                    icon: const Icon(Icons.volunteer_activism),
+                    label: const Text('Continue to donate'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('Cancel'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SectionHeader extends StatelessWidget {
+  const SectionHeader({
+    super.key,
+    required this.title,
+    required this.actionLabel,
+    required this.onPressed,
+  });
 
   final String title;
   final String actionLabel;
@@ -590,51 +1099,75 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
         ),
-        if (actionLabel.isNotEmpty)
-          TextButton(onPressed: onPressed, child: Text(actionLabel)),
+        if (actionLabel.isNotEmpty && onPressed != null)
+          TextButton(
+            onPressed: onPressed,
+            child: Text(actionLabel),
+          ),
       ],
     );
   }
 }
 
-class _UpcomingEventHighlight extends StatelessWidget {
-  const _UpcomingEventHighlight({required this.onPressed});
+class UpcomingEventHighlight extends StatelessWidget {
+  const UpcomingEventHighlight({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primaryContainer,
-            Theme.of(context).colorScheme.secondaryContainer,
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.event_available, size: 36),
+            const SizedBox(height: 12),
+            Text(
+              'Next: Seniors Lunch',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Today · 12:30 PM · Main Hall',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: onPressed,
+              child: const Text('View upcoming events'),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Next event', style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 8),
-          Text('Seniors Lunch', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text('Today · 12:30 PM · Main Hall', style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 16),
-          FilledButton(onPressed: onPressed, child: const Text('View upcoming events')),
-        ],
       ),
     );
   }
 }
 
-class _SimpleListRow extends StatelessWidget {
-  const _SimpleListRow({required this.icon, required this.title, required this.subtitle, required this.primaryLabel});
+class SimpleListRow extends StatelessWidget {
+  const SimpleListRow({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.primaryLabel,
+  });
 
   final IconData icon;
   final String title;
@@ -644,29 +1177,42 @@ class _SimpleListRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 32),
+        Icon(icon, size: 34),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
               const SizedBox(height: 4),
               Text(subtitle),
             ],
           ),
         ),
-        const SizedBox(width: 12),
-        FilledButton.tonal(onPressed: () {}, child: Text(primaryLabel)),
+        FilledButton.tonal(
+          onPressed: () {},
+          child: Text(primaryLabel),
+        ),
       ],
     );
   }
 }
 
 class EventItem {
-  const EventItem(this.id, this.title, this.time, this.location, this.category, this.paid);
+  const EventItem({
+    required this.id,
+    required this.title,
+    required this.time,
+    required this.location,
+    required this.category,
+    required this.paid,
+  });
 
   final int id;
   final String title;
@@ -674,4 +1220,30 @@ class EventItem {
   final String location;
   final String category;
   final bool paid;
+}
+
+class CourseItem {
+  const CourseItem({
+    required this.title,
+    required this.duration,
+    required this.level,
+    required this.description,
+  });
+
+  final String title;
+  final String duration;
+  final String level;
+  final String description;
+}
+
+class MembershipPlan {
+  const MembershipPlan({
+    required this.name,
+    required this.price,
+    required this.detail,
+  });
+
+  final String name;
+  final String price;
+  final String detail;
 }
