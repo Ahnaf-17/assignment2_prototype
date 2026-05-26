@@ -3,13 +3,6 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(const KiccApp());
 
-/// Final COIT20270 Assignment 4 app.
-/// Design focus:
-/// - Fewer primary navigation destinations to reduce cognitive load.
-/// - Interactive flows rather than static screens.
-/// - Consistent responsive layout for mobile, tablet, and desktop/DartPad.
-/// - Material 3 components with standard page transitions.
-/// - Central ChangeNotifier state management so UI updates consistently.
 class KiccApp extends StatelessWidget {
   const KiccApp({super.key});
 
